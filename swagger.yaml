@@ -11,7 +11,7 @@ servers:
 - url: /
 
 paths:
-  /api/v1/users:
+  /api/v1/user:
     post:
       summary: Create a user record
       tags:

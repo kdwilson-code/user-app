@@ -1,0 +1,229 @@
+openapi: 3.0.1
+info:
+  title: User App
+  description: |
+    # API Documentation
+
+    This page documents the available APIs for the sample User Application
+  version: 1.0.0
+
+servers:
+- url: /
+
+paths:
+  /api/v1/users:
+    post:
+      summary: Create a user record
+      tags:
+        - UserApp
+      requestBody:
+        description: JSON structure representing user record. Email address must be unique in the system.
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/UserCreate'      
+      responses:
+        '200':
+          description: Successful creation of user record in DB. Id of the created record is returned 
+        '400': 
+          description: Failure to create user record
+
+    get:
+      summary: Get one or more user records
+      tags:
+        - UserApp
+      parameters:
+        - name: name
+          in: query
+          description: Name of the person
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          description: Email address of person
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: number
+        - name: page
+          in: query
+          description: Page of results
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of user records meeting query criteria
+        '400': 
+          description: Failure to get user record unrelated to find operation
+        '404': 
+          description: Failure to find user record
+  
+  /api/v1/user/{_id}:
+    get:
+      summary: Get a single user record
+      tags:
+        - UserApp
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique ID of the user record
+      responses:
+        '200':
+          description: Successful retrieval from the DB
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/UserGet'
+        '400': 
+          description: Failure to get user record unrelated to find operation
+        '404': 
+          description: Failure to find user record
+    put:
+      summary: Update a single user record
+      tags:
+        - UserApp
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique ID of the user record
+      requestBody:
+        description: JSON structure of the user record. Fields oldPassword and newPassword are only required if performing a password update.
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/UserUpdate'   
+      responses:
+        200:
+          description: Successful update of user entry in DB
+        '400': 
+          description: Failure to update user record
+        '404': 
+          description: Failure to find user record to update
+    delete:
+      summary: Delete a single user record
+      tags:
+        - UserApp
+      parameters:
+        - name: _id
+          in: path
+          description: Unique ID of the user record
+          required: true
+          schema:
+            type: string     
+      responses:
+        '200':
+          description: Successful deletion of user record
+        '400': 
+          description: Failure to delete user record
+        '404': 
+          description: Failure to find user record
+
+  /api/v1/login:
+    post:
+      tags:
+      - Login
+      description: |
+        Login the user to the system.  The user id and password are required.
+      requestBody:
+        description: Structure containing user id and password
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+        required: false
+      responses:
+        200:
+          description: Successful Login
+        401:
+          description: Unsuccessful Login
+
+components:
+  schemas:
+    UserCreate:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the user
+          example: Kevin Wilson
+        email:
+          type: string
+          description: Email address of the user
+          example: xyz123@icloud.com
+        password:
+          type: string
+          description: Password for the user
+          example: my_password     
+    UserUpdate:
+      required:
+      - _id
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique ID of the user record
+          example: e2216f44-6d7a-4fcc-9479-fe7ffa85f196
+        name:
+          type: string
+          description: Name of the user
+          example: Kevin Wilson
+        email:
+          type: string
+          description: Email address of the user
+          example: xyz123@icloud.com
+        oldPassword:
+          type: string
+          description: Only required if user is changing their password
+          example: my_old_password     
+        newPassword:
+          type: string
+          description: Only required if user is changing their password
+          example: my_new_password    
+    UserGet:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique ID of the user record
+          example: e2216f44-6d7a-4fcc-9479-fe7ffa85f196
+        name:
+          type: string
+          description: Name of the user
+          example: Kevin Wilson
+        email:
+          type: string
+          description: Email address of the user
+          example: xyz123@icloud.com
+        lastLogin:
+          type: string
+          example: "January 31, 2021 02:48:33PM"
+        lastUpdated:
+          type: string
+          example: "January 31, 2021 02:48:33PM"
+    LoginBody:
+      required:
+        - password
+        - username
+      type: object
+      properties:
+        email:
+          type: string
+          example: xyz123@icloud.com
+        password:
+          type: string
+          example: can_you_guess_my_credentials

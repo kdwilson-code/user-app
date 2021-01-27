@@ -1,0 +1,23 @@
+{
+  "name": "user-app",
+  "version": "1.0.0",
+  "description": "Simple User Application",
+  "main": "app.js",
+  "scripts": {
+    "start": "NODE_ENV=production node ./src/app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kevin W",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.17.1",
+    "lodash": "~4.17.15",
+    "mongodb": "~3.6.3",
+    "swagger-ui-express": "~4.1.4",
+    "serve-favicon": "~2.5.0",
+    "uuid": "^8.3.2",
+    "xml2js": "^0.4.19",
+    "yamljs": "^0.3.0"
+  }
+}

@@ -12,8 +12,8 @@ const router = express.Router();
 const defaultPageSize = 10;
 
 router.post('/user', async function (req, res, next) {
-   const name = _.get(req, 'body.name');
    const email = _.get(req, 'body.email');
+   const name = _.get(req, 'body.name');
    const password = _.get(req, 'body.password');
    let userRecord = {};
 
@@ -21,7 +21,7 @@ router.post('/user', async function (req, res, next) {
       const collection = await mongoUtil.getCollection('User');
 
       // Validate required body fields
-      if (!name || !email || !password) {
+      if (!email || !name || !password) {
          throw (utils.createError(400, 'Bad Request', 'Missing Required Fields'));
       } else {
          // Verify user (via email field) doesn't not currently exist in the system
@@ -29,8 +29,9 @@ router.post('/user', async function (req, res, next) {
             throw (utils.createError(400, 'Bad Request', 'User is already configured in the system'));
          }
       
+         // Lower case email for standardization.  However don't lower name.
+         userRecord.email = _.toLower(email);
          userRecord.name = name;
-         userRecord.email = email;
 
          // Hash the password so not in cleartext. This is only a partial security
          // solution as the best would be to salt the hash.
@@ -71,25 +72,24 @@ router.get('/user', async function (req, res, next) {
       // an exact match. This is dependent on customer requirements of course.
       let queryString = {};
       if (email) {
-         queryString.email = email;
+         queryString.email = _.toLower(email);
       }
       if (name) {
-         queryString.name = name;
+         queryString.name = new RegExp(`^${name}$`,'i');
       }
 
       const collection = await mongoUtil.getCollection('User');
-      const collectionSize = await collection.countDocuments();
-      const userRecords = await collection.find(queryString)
-         .skip(page > 0 ? ((page - 1) * limit) : 0)
-         .limit(limit)
-         .toArray();
+      const result = await collection.find(queryString);
+      const userRecords = await result.skip(page > 0 ? ((page - 1) * limit) : 0)
+                                .limit(limit)
+                                .toArray();
 
       // Omit the password field for each record returned
       const filteredRecords = _.map(userRecords, function (userRecord) { return _.omit(userRecord, 'password'); });
 
       res.send({
          'count': filteredRecords.length,
-         'total' : collectionSize,
+         'total': await result.count(),
          'users': _.map(userRecords, function (userRecord) { return _.omit(userRecord, 'password')})
       });
    } catch (error) {

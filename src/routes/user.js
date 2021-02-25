@@ -37,9 +37,12 @@ router.post('/user', async function (req, res, next) {
          // solution as the best would be to salt the hash.
          userRecord.password = crypto.createHash('md5').update(password).digest('hex');
 
+         // Record the creation time
+         userRecord.created = new Date();
+
          // Last Updated is not part of the requirements but it is always good to know
          // the last time the record was updated.
-         userRecord.lastUpdated = new Date();
+         userRecord.lastUpdated = userRecord.created;
 
          // Give each record a unique identifier
          userRecord._id = uuidv4();
@@ -108,7 +111,7 @@ router.get('/user/:_id', async function (req, res, next) {
 
       if (userRecord) {
          // Although the DB record might contain more, only include certain fields.
-         res.send(_.pick(userRecord, ['_id', 'email', 'name', 'lastLogin', 'lastUpdated']));
+         res.send(_.pick(userRecord, ['_id', 'email', 'name', 'lastLogin', 'created', 'lastUpdated']));
       } else {
          throw (utils.createError(404, 'Not Found', `User Record ${id} not found`));
       }
@@ -127,26 +130,21 @@ router.put('/user/:_id', async function (req, res, next) {
       const userRecord = await collection.findOne({ _id: id });
 
       if (userRecord) {
-         // Validate the required body fields
+         // Pull potential existing fields
          const name = _.get(req, 'body.name');
          const email = _.get(req, 'body.email');
-
-         if (!name || !email) {
-            throw (utils.createError(400, 'Bad Request', 'Missing Required Fields'));
-         } 
+         const oldPassword = _.get(req, 'body.oldPassword');
+         const newPassword = _.get(req, 'body.newPassword');
 
          // Multiple user records with same email is not permitted.
          if (email !== userRecord.email && await collection.findOne({'email': email})) {
             throw (utils.createError(400, 'Bad Request', 'User is already configured in the system'));
          }         
 
-         userRecord.name = name;
-         userRecord.email = email;
+         userRecord.name = _.get(req, 'body.name') || userRecord.name;
+         userRecord.email = _.get(req, 'body.email') || userRecord.email;
 
          // Check to see if the user is attempting to update their password
-         const oldPassword = _.get(req, 'body.oldPassword');
-         const newPassword = _.get(req, 'body.newPassword');
-
          // If both fields sent with values, verify password change
          if (oldPassword && newPassword) {
             if (userRecord.password === crypto.createHash('md5').update(oldPassword).digest('hex')) {

@@ -22,5 +22,5 @@ npm install
 npm start
 ```
 
-The app will run at http://localhost:8080
+The application will run at http://localhost:8080
 

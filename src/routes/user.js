@@ -24,7 +24,7 @@ router.post('/user', async function (req, res, next) {
       if (!email || !name || !password) {
          throw (utils.createError(400, 'Bad Request', 'Missing Required Fields'));
       } else {
-         // Verify user (via email field) doesn't not currently exist in the system
+         // Verify user (via email field) doesn't not currently exist in the system.
          if (await collection.findOne({'email': email})) {
             throw (utils.createError(400, 'Bad Request', 'User is already configured in the system'));
          }

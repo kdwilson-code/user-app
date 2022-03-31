@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-// Setup the various routes for "user" and "login".  Include "v1" in the route
+// Setup the various routes for "user" and "login". Include "v1" in the route
 // to handle future versioning.
 app.use('/api/v1/', userRoute);
 app.use('/api/v1/', loginRoute);

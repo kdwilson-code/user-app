@@ -8,7 +8,7 @@ const mongoClient = mongodb.MongoClient;
 let dbConn = null;
 
 // Get a connection to the User Database in Mongo.  If a connection already exists
-// simply return that connection handle.
+// return that connection handle.
 const getConnection = async function () {
     if (!dbConn) {
         const client = new mongoClient(mongoUri, { useUnifiedTopology: true });

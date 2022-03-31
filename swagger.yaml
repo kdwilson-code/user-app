@@ -17,7 +17,7 @@ paths:
       tags:
         - UserApp
       requestBody:
-        description: JSON structure representing user record. Email address must be unique in the system.
+        description: JSON structure representing a user record. Email address must be unique in the system.
         content:
           'application/json':
             schema:

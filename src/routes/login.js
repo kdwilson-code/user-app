@@ -30,7 +30,7 @@ router.post('/login', async function (req, res, next) {
             throw (utils.createError(401, 'Unauthorized', ''));
          }
 
-         // Successful login.  Update lastLogin time.  Note lastUpdated is not part of the requirements
+         // Successful login.  Update lastLogin time.
          // but there can be times the user record is updated in a non-login scenario.
          userRecord.lastLogin = userRecord.lastUpdated = new Date();
 
